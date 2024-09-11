@@ -6,6 +6,7 @@ import com.example.park_api.resources.dto.UserPasswordDTO;
 import com.example.park_api.resources.dto.UserResponseDTO;
 import com.example.park_api.resources.dto.mapper.UserMapper;
 import com.example.park_api.services.UserService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +21,7 @@ public class UserResource {
     private final UserService userService;
 
     @PostMapping
-    public ResponseEntity<UserResponseDTO> create(@RequestBody UserCreateDTO userCreateDTO) {
+    public ResponseEntity<UserResponseDTO> create(@Valid @RequestBody UserCreateDTO userCreateDTO) {
         User newUser = userService.salvar(UserMapper.toUser(userCreateDTO));
         return ResponseEntity.status(HttpStatus.CREATED).body(UserMapper.toDto(newUser));
     }
@@ -32,7 +33,7 @@ public class UserResource {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<Void> updatePassword(@PathVariable Long id, @RequestBody UserPasswordDTO userPasswordDTO) {
+    public ResponseEntity<Void> updatePassword(@PathVariable Long id, @Valid @RequestBody UserPasswordDTO userPasswordDTO) {
         User userUpdated = userService.editarSenha(id,userPasswordDTO.getCurrentPassword(), userPasswordDTO.getNewPassword(), userPasswordDTO.getConfirmPassword());
         return ResponseEntity.noContent().build();
     }
