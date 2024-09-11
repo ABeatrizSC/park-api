@@ -1,7 +1,9 @@
 package com.example.park_api.services;
 
 import com.example.park_api.entities.User;
+import com.example.park_api.exception.EntityNotFoundException;
 import com.example.park_api.repositories.UserRepository;
+import com.example.park_api.exception.UsernameUniqueViolationException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -16,13 +18,17 @@ public class UserService {
 
     @Transactional
     public User salvar(User user) {
-        return userRepository.save(user);
+        try {
+            return userRepository.save(user);
+        } catch (org.springframework.dao.DataIntegrityViolationException ex) {
+            throw new UsernameUniqueViolationException(String.format("Username {%s} já cadastrado", user.getUsername()));
+        }
     }
 
     @Transactional
     public User buscarPorId(Long id) {
         return userRepository.findById(id).orElseThrow(
-                () -> new RuntimeException("User not found")
+                () -> new EntityNotFoundException(String.format("Usuário id=%s não encontrado.", id))
         );
     }
 
