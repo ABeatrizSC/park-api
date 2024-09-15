@@ -17,6 +17,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -49,8 +50,11 @@ public class UserResource {
                             content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserResponseDTO.class))),
                     @ApiResponse(responseCode = "404", description = "Recurso não encontrado",
                             content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorMessage.class)))
-            })
+            }
+    )
+
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN') OR ( hasRole('CLIENTE') AND #id == authentication.principal.id)") //restringe que quando o usuário logado for do tipo cliente, a resposta so deve retornar se o id passado for igual ao id que esta no contexto (id do usuario logado)
     public ResponseEntity<UserResponseDTO> getById(@PathVariable Long id) {
         User user = userService.buscarPorId(id);
         return ResponseEntity.ok(UserMapper.toDto(user));
