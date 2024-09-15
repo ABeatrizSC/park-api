@@ -21,6 +21,13 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 @EnableWebMvc // Habilita o suporte ao Spring MVC (controladores REST e afins)
 @Configuration // Indica que essa classe é uma configuração do Spring
 public class SpringSecurityConfig {
+    private static final String[] DOCUMENTATION_OPENAPI = {
+            "/docs/index.html",
+            "/docs-park.html", "/docs-park/**",
+            "/v3/api-docs/**",
+            "/swagger-ui-custom.html", "/swagger-ui.html", "/swagger-ui/**",
+            "/**.html", "/webjars/**", "/configuration/**", "/swagger-resources/**"
+    };
 
     // Define um bean que configura a cadeia de filtros de segurança
     @Bean
@@ -37,6 +44,7 @@ public class SpringSecurityConfig {
                         // Permite todas as requisições POST para o endpoint "api/v1/usuarios"
                         .requestMatchers(HttpMethod.POST, "api/v1/users").permitAll()
                         .requestMatchers(HttpMethod.POST, "api/v1/auth").permitAll()
+                        .requestMatchers(DOCUMENTATION_OPENAPI).permitAll() //transforma as URIs em acesso publico, para poder acessar o swagger e etc
                         // Qualquer outra requisição precisa estar autenticada
                         .anyRequest().authenticated()
                 )
