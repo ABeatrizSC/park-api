@@ -81,8 +81,11 @@ public class UserResource {
                     @ApiResponse(responseCode = "200", description = "Lista com todos os usuários cadastrados",
                             content = @Content(mediaType = "application/json",
                                     array = @ArraySchema(schema = @Schema(implementation = UserResponseDTO.class))))
-            })
+            }
+    )
+
     @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<UserResponseDTO>> getAll() {
         List<User> users = userService.buscarTodos();
         return ResponseEntity.ok(UserMapper.toListDto(users));
