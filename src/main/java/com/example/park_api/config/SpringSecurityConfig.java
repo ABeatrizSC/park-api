@@ -1,5 +1,6 @@
 package com.example.park_api.config;
 
+import com.example.park_api.jwt.JwtAuthenticationEntryPoint;
 import com.example.park_api.jwt.JwtAuthorizationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -44,6 +45,8 @@ public class SpringSecurityConfig {
                         session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 ).addFilterBefore(
                         jwtAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class
+                ).exceptionHandling(ex -> ex
+                        .authenticationEntryPoint(new JwtAuthenticationEntryPoint()) //sempre que houver uma exceção referente a usuário nao logado, o spring vai ate a classe acima e lança a exceção
                 ).build();
                 // Constrói e retorna a cadeia de filtros de segurança
     }
