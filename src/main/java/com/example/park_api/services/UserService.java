@@ -6,6 +6,7 @@ import com.example.park_api.repositories.UserRepository;
 import com.example.park_api.exception.UsernameUniqueViolationException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,10 +16,12 @@ import java.util.List;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Transactional
     public User salvar(User user) {
         try {
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
             return userRepository.save(user);
         } catch (org.springframework.dao.DataIntegrityViolationException ex) {
             throw new UsernameUniqueViolationException(String.format("Username {%s} já cadastrado", user.getUsername()));
@@ -38,7 +41,7 @@ public class UserService {
             throw new RuntimeException("Password does not match.");
         }
         User user = buscarPorId(id);
-        if (!user.getPassword().equals(currentPassword)) {
+        if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
             throw new RuntimeException("Password does not match.");
         }
         user.setPassword(newPassword);
@@ -48,5 +51,17 @@ public class UserService {
     @Transactional
     public List<User> buscarTodos() {
         return userRepository.findAll();
+    }
+
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
+    public User buscarPorUsername(String username) {
+        return userRepository.findByUsername(username).orElseThrow(
+                () -> new EntityNotFoundException(String.format("User com '%s' não encontrado", username))
+        );
+    }
+
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
+    public User.Role buscarRolePorUsername(String username) {
+        return userRepository.findRoleByUsername(username);
     }
 }
