@@ -70,6 +70,7 @@ public class UserResource {
                             content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorMessage.class)))
             })
     @PatchMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'CLIENTE') AND (#id == authentication.principal.id)") //Tanto admin quanto cliente devem estar logados e o usuário logado deverá possuir o mesmo id do passado na requisição
     public ResponseEntity<Void> updatePassword(@PathVariable Long id, @Valid @RequestBody UserPasswordDTO userPasswordDTO) {
         User userUpdated = userService.editarSenha(id,userPasswordDTO.getCurrentPassword(), userPasswordDTO.getNewPassword(), userPasswordDTO.getConfirmPassword());
         return ResponseEntity.noContent().build();
