@@ -6,7 +6,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -56,7 +55,7 @@ public class SpringSecurityConfig {
                 ).exceptionHandling(ex -> ex
                         .authenticationEntryPoint(new JwtAuthenticationEntryPoint()) //sempre que houver uma exceção referente a usuário nao logado, o spring vai ate a classe acima e lança a exceção
                 ).build();
-                // Constrói e retorna a cadeia de filtros de segurança
+        // Constrói e retorna a cadeia de filtros de segurança
     }
 
     @Bean

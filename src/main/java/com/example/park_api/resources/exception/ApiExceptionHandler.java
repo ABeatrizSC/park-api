@@ -1,5 +1,6 @@
 package com.example.park_api.resources.exception;
 
+import com.example.park_api.exception.CpfUniqueViolationException;
 import com.example.park_api.exception.EntityNotFoundException;
 import com.example.park_api.exception.UsernameUniqueViolationException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -35,7 +36,7 @@ public class ApiExceptionHandler {
                 .body(new ErrorMessage(request, HttpStatus.NOT_FOUND, ex.getMessage()));
     }
 
-    @ExceptionHandler(UsernameUniqueViolationException.class)
+    @ExceptionHandler({UsernameUniqueViolationException.class, CpfUniqueViolationException.class})
     public ResponseEntity<ErrorMessage> uniqueViolationException(UsernameUniqueViolationException ex, HttpServletRequest request){
         log.error("Api Error - ", ex);
         return ResponseEntity
