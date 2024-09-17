@@ -2,6 +2,7 @@ package com.example.park_api.services;
 
 import com.example.park_api.entities.User;
 import com.example.park_api.exception.EntityNotFoundException;
+import com.example.park_api.exception.PasswordInvalidException;
 import com.example.park_api.repositories.UserRepository;
 import com.example.park_api.exception.UsernameUniqueViolationException;
 import jakarta.transaction.Transactional;
@@ -38,11 +39,11 @@ public class UserService {
     @Transactional
     public User editarSenha(Long id, String currentPassword, String newPassword, String confirmPassword) {
         if (!newPassword.equals(confirmPassword)) {
-            throw new RuntimeException("Password does not match.");
+            throw new PasswordInvalidException("Sua senha não confere.");
         }
         User user = buscarPorId(id);
         if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
-            throw new RuntimeException("Password does not match.");
+            throw new PasswordInvalidException("Sua senha não confere.");
         }
         user.setPassword(newPassword);
         return user;
