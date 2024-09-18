@@ -2,9 +2,12 @@ package com.example.park_api.resources;
 
 import com.example.park_api.entities.Cliente;
 import com.example.park_api.jwt.JwtUserDetails;
+import com.example.park_api.repositories.projection.ClienteProjection;
 import com.example.park_api.resources.dto.ClienteCreateDTO;
 import com.example.park_api.resources.dto.ClienteResponseDTO;
+import com.example.park_api.resources.dto.PageableDto;
 import com.example.park_api.resources.dto.mapper.ClienteMapper;
+import com.example.park_api.resources.dto.mapper.PageableMapper;
 import com.example.park_api.resources.exception.ErrorMessage;
 import com.example.park_api.services.ClienteService;
 import com.example.park_api.services.UserService;
@@ -61,7 +64,9 @@ public class ClienteResource {
         return ResponseEntity.status(201).body(ClienteMapper.toDto(cliente));
     }
 
-    /*@Operation(summary = "Localizar um cliente", description = "Recurso para localizar um cliente pelo ID. " +
+   @Operation(
+           summary = "Localizar um cliente",
+           description = "Recurso para localizar um cliente pelo ID. " +
             "Requisição exige uso de um bearer token. Acesso restrito a Role='ADMIN'",
             security = @SecurityRequirement(name = "security"),
             responses = {
@@ -73,47 +78,58 @@ public class ClienteResource {
                             content = @Content(mediaType = " application/json;charset=UTF-8", schema = @Schema(implementation = ErrorMessage.class)))
             })
     @GetMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')") //apenas o admin tem acesso a esse recurso
     public ResponseEntity<ClienteResponseDTO> getById(@PathVariable Long id) {
         Cliente cliente = clienteService.buscarPorId(id);
         return ResponseEntity.ok(ClienteMapper.toDto(cliente));
     }
 
-    @Operation(summary = "Recuperar lista de clientes",
-            description = "Requisição exige uso de um bearer token. Acesso restrito a Role='ADMIN' ",
+    // Anotação que fornece informações detalhadas sobre a operação da API no Swagger
+    @Operation(
+            summary = "Recuperar lista de clientes",
+            description = "Requisição exige uso de um bearer token. Acesso restrito a Role='ADMIN'",
             security = @SecurityRequirement(name = "security"),
             parameters = {
-                    @Parameter(in = QUERY, name = "page",
-                            content = @Content(schema = @Schema(type = "integer", defaultValue = "0")),
-                            description = "Representa a página retornada"
+                    @Parameter(
+                            in = QUERY, name = "page",  // Parâmetro para definir a página que será retornada
+                            content = @Content(schema = @Schema(type = "integer", defaultValue = "0")),  // Define que o tipo desse parâmetro é inteiro com valor padrão 0
+                            description = "Representa a página retornada"  // Descrição do parâmetro
                     ),
-                    @Parameter(in = QUERY, name = "size",
-                            content = @Content(schema = @Schema(type = "integer", defaultValue = "5")),
+                    @Parameter(
+                            in = QUERY, name = "size",  // Parâmetro para definir o número de elementos por página
+                            content = @Content(schema = @Schema(type = "integer", defaultValue = "5")),  // Define o tamanho padrão de 5 elementos por página
                             description = "Representa o total de elementos por página"
                     ),
-                    @Parameter(in = QUERY, name = "sort", hidden = true,
-                            array = @ArraySchema(schema = @Schema(type = "string", defaultValue = "nome,asc")),
-                            description = "Representa a ordenação dos resultados. Aceita multiplos critérios de ordenação são suportados.")
-            },
-            responses = {
-                    @ApiResponse(responseCode = "200", description = "Recurso recuperado com sucesso",
-                            content = @Content(mediaType = " application/json;charset=UTF-8",
-                                    schema = @Schema(implementation = ClienteResponseDTO.class))
-                    ),
-                    @ApiResponse(responseCode = "403", description = "Recurso não permito ao perfil de CLIENTE",
-                            content = @Content(mediaType = " application/json;charset=UTF-8",
-                                    schema = @Schema(implementation = ErrorMessage.class))
+                    @Parameter(
+                            in = QUERY, name = "sort", hidden = true,  // Parâmetro para definir a ordenação, mas está oculto na documentação do Swagger
+                            array = @ArraySchema(schema = @Schema(type = "string", defaultValue = "nome,asc")),  // Define que a ordenação é feita por 'nome' de forma ascendente
+                            description = "Representa a ordenação dos resultados. Aceita múltiplos critérios de ordenação."
                     )
-            })
+            },
+            responses = {  // Definição das possíveis respostas da API
+                    @ApiResponse(
+                            responseCode = "200", description = "Recurso recuperado com sucesso",  // Retorno de sucesso
+                            content = @Content(mediaType = "application/json;charset=UTF-8",
+                                    schema = @Schema(implementation = ClienteResponseDTO.class))  // O retorno será um objeto ClienteResponseDTO
+                    ),
+                    @ApiResponse(
+                            responseCode = "403", description = "Recurso não permitido ao perfil de CLIENTE",  // Retorno para usuários que não têm a Role 'ADMIN'
+                            content = @Content(mediaType = "application/json;charset=UTF-8",
+                                    schema = @Schema(implementation = ErrorMessage.class))  // O retorno será um objeto ErrorMessage
+                    )
+            }
+    )
+
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<PageableDto> getAll(@Parameter(hidden = true)
+    public ResponseEntity<PageableDto> getAll(@Parameter(hidden = true) //esconde da requisição parametros com hidden true
                                               @PageableDefault(size = 5, sort = {"nome"}) Pageable pageable) {
         Page<ClienteProjection> clientes = clienteService.buscarTodos(pageable);
         return ResponseEntity.ok(PageableMapper.toDto(clientes));
     }
 
-    @Operation(summary = "Recuperar dados do cliente autenticado",
+
+   @Operation(summary = "Recuperar dados do cliente autenticado",
             description = "Requisição exige uso de um bearer token. Acesso restrito a Role='CLIENTE'",
             security = @SecurityRequirement(name = "security"),
             responses = {
@@ -126,10 +142,10 @@ public class ClienteResource {
                                     schema = @Schema(implementation = ErrorMessage.class))
                     )
             })
-    @GetMapping("/detalhes")
+    @GetMapping("/details")
     @PreAuthorize("hasRole('CLIENTE')")
     public ResponseEntity<ClienteResponseDTO> getDetalhes(@AuthenticationPrincipal JwtUserDetails userDetails) {
         Cliente cliente = clienteService.buscarPorUsuarioId(userDetails.getId());
         return ResponseEntity.ok(ClienteMapper.toDto(cliente));
-    }*/
+    }
 }

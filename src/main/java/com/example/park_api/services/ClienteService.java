@@ -3,6 +3,8 @@ package com.example.park_api.services;
 import com.example.park_api.entities.Cliente;
 import com.example.park_api.exception.CpfUniqueViolationException;
 import com.example.park_api.repositories.ClienteRepository;
+import com.example.park_api.repositories.projection.ClienteProjection;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
@@ -27,7 +29,7 @@ public class ClienteService {
         }
     }
 
-/*    @Transactional(readOnly = true)
+    @Transactional(readOnly = true)
     public Cliente buscarPorId(Long id) {
         return clienteRepository.findById(id).orElseThrow(
                 () -> new EntityNotFoundException(String.format("Cliente id=%s não encontrado no sistema", id))
@@ -42,5 +44,5 @@ public class ClienteService {
     @Transactional(readOnly = true)
     public Cliente buscarPorUsuarioId(Long id) {
         return clienteRepository.findByUsuarioId(id);
-    }*/
+    }
 }
